@@ -1,5 +1,4 @@
 import os
-# import json
 import requests
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
@@ -35,21 +34,13 @@ def upload():
     infile.save(temp_path)
 
     files = {'file': (filename, open(temp_path, 'rb'))}
-    # Optional fields from frontend form?
-    # For simplicity, use analysis:{ "cloud": true } to trigger Spectra Intelligence
-    data = {
-        # "filename": filename,
-        # "tags": request.form.get('tags'),
-        # "comment": request.form.get('comment'),
-        # "analysis": json.dumps({"cloud": True})
-    }
+
     headers = {
         "Authorization": f"Token {API_TOKEN}"
     }
 
     try:
-        resp = requests.post(SUBMIT_URL, files=files,
-                             data=data, headers=headers)
+        resp = requests.post(SUBMIT_URL, files=files, headers=headers)
     finally:
         files['file'][1].close()
         os.remove(temp_path)
