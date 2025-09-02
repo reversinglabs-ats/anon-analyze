@@ -1,34 +1,50 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>ReversingLabs File Upload</title>
+    <title>Upload File for Analysis</title>
 </head>
 
 <body>
-    <h1>Upload a File for Analysis</h1>
+    <h1>Upload a File</h1>
     <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" name="file" required>
-        <button type="submit">Upload</button>
+        <label for="email">Email:</label>
+        <input type="email" name="email" required><br><br>
+        <input type="file" name="file" required><br><br>
+        <button type="submit">Submit</button>
     </form>
-    <p id="responseMessage"></p>
+
+    <p id="status"></p>
 
     <script>
         const form = document.getElementById('uploadForm');
-        const message = document.getElementById('responseMessage');
+        const statusMsg = document.getElementById('status');
 
         form.onsubmit = async (e) => {
             e.preventDefault();
+            statusMsg.textContent = 'Submitting file...';
             const formData = new FormData(form);
-            const res = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await res.json();
-            message.textContent = result.message;
-            message.style.color = result.success ? 'green' : 'red';
+
+            try {
+                const res = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    statusMsg.innerHTML = `
+            ✅ File analyzed successfully!<br>
+            <strong>SHA-1:</strong> ${result.sha1}<br>
+            <strong>Classification:</strong> ${result.classification}
+          `;
+                } else {
+                    statusMsg.textContent = `❌ ${result.message}`;
+                }
+            } catch (err) {
+                statusMsg.textContent = `❌ Upload failed: ${err}`;
+            }
         };
     </script>
 </body>
