@@ -17,6 +17,7 @@ API_BASE = os.getenv("ANALYZE_API_BASE")  # e.g. https://your.appliance.com
 SUBMIT_URL = f"{API_BASE}/api/submit/file/"
 STATUS_URL = f"{API_BASE}/api/samples/status/"
 SUMMARY_URL = f"{API_BASE}/api/samples/v2/list/"
+REQUESTS_TIMEOUT = 60
 
 
 @app.route("/")
@@ -46,7 +47,7 @@ def upload():
     headers = {"Authorization": f"Token {API_TOKEN}"}
 
     try:
-        resp = requests.post(SUBMIT_URL, files=files, data=data, headers=headers)
+        resp = requests.post(SUBMIT_URL, files=files, data=data, headers=headers, timeout=60)
     finally:
         files["file"][1].close()
         os.remove(temp_path)
@@ -63,7 +64,9 @@ def upload():
     interval = 5
     elapsed = 0
     while elapsed < timeout:
-        status_resp = requests.post(STATUS_URL, json={"hash_values": [sha1]}, headers=headers)
+        status_resp = requests.post(
+            STATUS_URL, json={"hash_values": [sha1]}, headers=headers, timeout=REQUESTS_TIMEOUT
+        )
         if status_resp.status_code == 200:
             status_json = status_resp.json()
             status = status_json.get("results")[0].get("status")
@@ -76,7 +79,9 @@ def upload():
         return jsonify(success=False, message="File submitted but processing timed out"), 202
 
     # Fetch classification
-    summary_resp = requests.post(SUMMARY_URL, json={"hash_values": [sha1]}, headers=headers)
+    summary_resp = requests.post(
+        SUMMARY_URL, json={"hash_values": [sha1]}, headers=headers, timeout=REQUESTS_TIMEOUT
+    )
     if summary_resp.status_code != 200:
         return jsonify(success=False, message="Processing complete, but failed to get summary"), 500
 
@@ -88,7 +93,3 @@ def upload():
     return jsonify(
         success=True, classification=classification, sha1=sha1, message="File analyzed successfully"
     )
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
