@@ -24,7 +24,8 @@ pytest
 
 # build & run container
 docker build -t anon-analyze:local .
-docker run --rm -p 8000:8000 anon-analyze:local
+# Make sure you set the ANALYZE_API_BASE and ANALYZE_API_TOKEN env vars
+docker run --rm --env-file ./.env -p 8000:8000 anon-analyze:local
 ```
 
 ## CI/CD Overview
