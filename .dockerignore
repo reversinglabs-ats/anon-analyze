@@ -1,0 +1,17 @@
+.git
+src/anon_analyze/__pycache__/
+src/anon_analyze.egg-info
+tests/__pycache__/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite*
+instance/
+.env
+venv/
+.venv/
+dist/
+build/
+uploads/
+.gitignore

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anon-analyze"
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "Provides a front-end for anonymous user usage of Spectra Analyze"
+readme = "README.md"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["anon_analyze"]
+
+[tool.setuptools.package-data]
+anon_analyze = [
+  "templates/*.html"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
