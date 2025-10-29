@@ -14,7 +14,7 @@ test:
 	pytest
 
 run:
-	FLASK_ENV=development FLASK_APP=app.py flask run --host=0.0.0.0 --port=8000
+	FLASK_ENV=development FLASK_APP=anon_analyze.app flask run --host=0.0.0.0 --port=8000
 
 docker-build:
 	docker build -t anon-analyze:local .

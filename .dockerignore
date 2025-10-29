@@ -3,6 +3,8 @@ src/anon_analyze/__pycache__/
 src/anon_analyze.egg-info
 tests/__pycache__/
 __pycache__/
+.pytest_cache/
+.ruff_cache/
 *.pyc
 *.pyo
 *.pyd
@@ -11,6 +13,7 @@ instance/
 .env
 venv/
 .venv/
+.vscode/
 dist/
 build/
 uploads/
