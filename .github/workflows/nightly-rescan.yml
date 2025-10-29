@@ -17,6 +17,8 @@ jobs:
   trivy-rescan:
     runs-on: ubuntu-latest
     steps:
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
       - name: Pull latest image
         run: docker pull $REGISTRY/$IMAGE_NAME:main || true
       - name: Trivy scan latest

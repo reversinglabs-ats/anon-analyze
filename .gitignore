@@ -1,7 +1,10 @@
 .venv
 .env
 .flake8
+.vscode/
 src/anon_analyze/__pycache__/
 src/anon_analyze.egg-info/
 tests/__pycache__/
 __pycache__/
+.pytest_cache/
+.ruff_cache/
