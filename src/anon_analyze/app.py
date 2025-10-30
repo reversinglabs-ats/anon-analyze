@@ -4,9 +4,11 @@ import time
 import requests
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
-from dotenv import load_dotenv
 
-load_dotenv()
+if os.getenv("FLASK_ENV") == "development":
+    from dotenv import load_dotenv
+
+    load_dotenv()
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "uploads"

@@ -41,7 +41,7 @@ jobs:
           python-version: "3.12"
       - name: pip-audit
         run: |
-          pip install pip-audit==2.7.3
+          pip install pip-audit==2.9.0
           pip-audit -r requirements.txt || (echo "::warning::Vulnerabilities found"; exit 1)
 
   bandit:
@@ -53,5 +53,5 @@ jobs:
           python-version: "3.12"
       - name: Static Application Security Testing (Bandit)
         run: |
-          pip install bandit==1.7.10
+          pip install bandit==1.8.6
           bandit -q -r .

@@ -3,3 +3,4 @@ ruff==0.14.2
 pip-audit==2.9.0
 bandit==1.8.6
 pre-commit==4.3.0
+python-dotenv>=1.0.0
