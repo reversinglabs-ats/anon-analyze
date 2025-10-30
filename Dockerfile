@@ -1,28 +1,48 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.12-slim AS base
+# Stage 1: Builder - Install dependencies and application
+FROM python:3.11-slim AS builder
 
-# Prevent Python from writing .pyc files and buffering stdout/stderr
-ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PIP_NO_CACHE_DIR=1
+# Prevent Python from writing .pyc files
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
 
-# curl for healthcheck/debug; build-essential only if needed
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN useradd -m appuser
 WORKDIR /app
 
 # Copy dependency manifests first for better Docker layer caching
 COPY requirements.txt /app/requirements.txt
-RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
-# Move the code over and install it
+# Install dependencies to user site-packages for easy copying
+RUN pip install --upgrade pip && \
+    pip install --user --no-cache-dir -r /app/requirements.txt
+
+# Move the code over and install the application package
 COPY pyproject.toml /app/pyproject.toml
 COPY src /app/src
-RUN pip install .
+RUN pip install --user --no-cache-dir .
+
+# Create uploads directory that will be copied to runtime stage
+RUN mkdir -p /app/uploads
+
+# Stage 2: Runtime - Distroless Python image
+FROM gcr.io/distroless/python3-debian12
+
+# Prevent Python from buffering stdout/stderr and writing .pyc files
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+COPY --from=builder --chown=nonroot:nonroot /root/.local /home/nonroot/.local
+COPY --from=builder --chown=nonroot:nonroot /app/src /app/src
+COPY --from=builder --chown=nonroot:nonroot /app/uploads /app/uploads
+
+# Set HOME so Python can find .local packages
+ENV HOME=/home/nonroot
 
 EXPOSE 8000
 
+USER nonroot:nonroot
+
 # If the Flask app instance is called "app" inside app.py, WSGI module path is "app:app"
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "anon_analyze.app:app"]
+CMD ["-m", "gunicorn", "-b", "0.0.0.0:8000", "anon_analyze.app:app"]
