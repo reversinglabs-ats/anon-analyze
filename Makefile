@@ -1,6 +1,6 @@
 PYTHON := python3
 
-.PHONY: install lint test run docker-build docker-run
+.PHONY: install lint test run docker-build docker-run docker-run-tls
 
 install:
 	pip install -r requirements.txt
@@ -21,3 +21,6 @@ docker-build:
 
 docker-run:
 	docker run --rm --env-file ./.env -p 8000:8000 anon-analyze:local
+
+docker-run-tls:
+	docker run --rm --env-file ./.env -e ENABLE_TLS=true -p 8000:8000 anon-analyze:local

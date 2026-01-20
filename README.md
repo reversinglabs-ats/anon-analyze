@@ -1,6 +1,6 @@
 ## Disclaimer of Warranty
 
-This application is provided “as is” and “as available” without any warranties of any kind, either express or implied.
+This application is provided "as is" and "as available" without any warranties of any kind, either express or implied.
 
 Reversing Labs make no representations or warranties of any kind, including but not limited to:
 
@@ -15,18 +15,74 @@ In no event shall the developer be liable for any direct, indirect, incidental, 
 
 ## Quickstart
 
+### Local Development
+
 ```bash
-# local dev
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt -r dev-requirements.txt
 pre-commit install
 pytest
-
-# build & run container
-docker build -t anon-analyze:local .
-# Make sure you set the ANALYZE_API_BASE and ANALYZE_API_TOKEN env vars
-docker run --rm --env-file ./.env -p 8000:8000 anon-analyze:local
 ```
+
+### Build and Run Container
+
+```bash
+# Build the image
+docker build -t anon-analyze:local .
+
+# Run in HTTP mode (default)
+docker run --rm --env-file ./.env -p 8000:8000 anon-analyze:local
+
+# Run in HTTPS mode with auto-generated self-signed certificate
+docker run --rm --env-file ./.env -e ENABLE_TLS=true -p 8000:8000 anon-analyze:local
+```
+
+## Configuration
+
+### Required Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ANALYZE_API_BASE` | Base URL of your Spectra Analyze instance |
+| `ANALYZE_API_TOKEN` | API authentication token for Spectra Analyze |
+
+### Optional Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ENABLE_TLS` | `false` | Set to `true` to enable HTTPS mode |
+| `TLS_CERT_PATH` | (none) | Path to TLS certificate file (from container's perspective) |
+| `TLS_KEY_PATH` | (none) | Path to TLS private key file (from container's perspective) |
+
+## TLS/HTTPS Mode
+
+The application supports optional HTTPS mode for encrypted connections. Both HTTP and HTTPS modes use port 8000 inside the container.
+
+### Auto-Generated Self-Signed Certificate
+
+When `ENABLE_TLS=true` is set without providing certificate paths, the application automatically generates a self-signed certificate:
+
+```bash
+docker run --rm --env-file ./.env -e ENABLE_TLS=true -p 8000:8000 anon-analyze:local
+curl -k https://localhost:8000/
+```
+
+The `-k` flag tells curl to accept the self-signed certificate.
+
+### Using Custom Certificates
+
+To use your own certificates, mount them into the container and set the path environment variables:
+
+```bash
+docker run --rm --env-file ./.env \
+  -e ENABLE_TLS=true \
+  -e TLS_CERT_PATH=/certs/cert.pem \
+  -e TLS_KEY_PATH=/certs/key.pem \
+  -v /path/to/your/certs:/certs:ro \
+  -p 8000:8000 anon-analyze:local
+```
+
+Note that `TLS_CERT_PATH` and `TLS_KEY_PATH` are paths **from the container's perspective**, not the host. Both must be provided together, or neither (for auto-generated certificates).
 
 ## CI/CD Overview
 

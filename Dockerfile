@@ -41,4 +41,4 @@ EXPOSE 8000
 
 USER nonroot:nonroot
 
-CMD ["-m", "gunicorn", "-b", "0.0.0.0:8000", "anon_analyze.app:app"]
+CMD ["-m", "anon_analyze.entrypoint"]
