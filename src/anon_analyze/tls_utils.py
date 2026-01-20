@@ -11,7 +11,7 @@ from cryptography.x509.oid import NameOID
 
 
 def generate_self_signed_cert(
-    output_dir: str = "/tmp/certs",
+    output_dir: str = "/tmp/certs",  # nosec B108 - runs in isolated distroless container
     cert_filename: str = "cert.pem",
     key_filename: str = "key.pem",
 ) -> tuple[str, str]:

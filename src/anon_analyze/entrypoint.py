@@ -37,7 +37,9 @@ def main() -> None:
         else:
             sys.exit("Error: Both TLS_CERT_PATH and TLS_KEY_PATH must be set, or neither")
 
-    os.execvp(sys.executable, cmd)
+    # Command is built from trusted sources: sys.executable, hardcoded strings,
+    # and operator-controlled env vars validated as existing files
+    os.execvp(sys.executable, cmd)  # nosec B606
 
 
 if __name__ == "__main__":
