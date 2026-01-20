@@ -18,7 +18,7 @@ API_TOKEN = os.getenv("ANALYZE_API_TOKEN")
 API_BASE = os.getenv("ANALYZE_API_BASE")  # e.g. https://your.appliance.com
 SUBMIT_URL = f"{API_BASE}/api/submit/file/"
 STATUS_URL = f"{API_BASE}/api/samples/status/"
-SUMMARY_URL = f"{API_BASE}/api/samples/v2/list/"
+CLASSIFICATION_URL = f"{API_BASE}/api/samples/v3/"
 REQUESTS_TIMEOUT = 60
 
 
@@ -80,18 +80,26 @@ def upload():
     if status != "processed":
         return jsonify(success=False, message="File submitted but processing timed out"), 202
 
-    # Fetch classification
-    summary_resp = requests.post(
-        SUMMARY_URL, json={"hash_values": [sha1]}, headers=headers, timeout=REQUESTS_TIMEOUT
+    # Fetch classification (using v3 endpoint)
+    classification_resp = requests.get(
+        f"{CLASSIFICATION_URL}{sha1}/classification/",
+        headers=headers,
+        timeout=REQUESTS_TIMEOUT,
     )
-    if summary_resp.status_code != 200:
-        return jsonify(success=False, message="Processing complete, but failed to get summary"), 500
+    if classification_resp.status_code != 200:
+        return jsonify(success=False, message="Processing complete, but failed to get classification"), 500
 
-    summary = summary_resp.json()
-    # classification = summary.get('classification', 'Unknown')
-    classification = summary.get("results")[0].get(
-        "classification", "Could not find classification"
-    )
+    classification_data = classification_resp.json()
+    classification = classification_data.get("classification", "Could not find classification")
+    md5 = classification_data.get("md5")
+    sha1_hash = classification_data.get("sha1")
+    sha256 = classification_data.get("sha256")
+
     return jsonify(
-        success=True, classification=classification, sha1=sha1, message="File analyzed successfully"
+        success=True,
+        classification=classification,
+        md5=md5,
+        sha1=sha1_hash,
+        sha256=sha256,
+        message="File analyzed successfully",
     )

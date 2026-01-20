@@ -46,7 +46,7 @@ body {
 }
 
 .header-content {
-  max-width: 600px;
+  max-width: 680px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -75,7 +75,7 @@ body {
 
 .card {
   width: 100%;
-  max-width: 600px;
+  max-width: 680px;
   background: var(--color-background);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);

@@ -170,8 +170,16 @@
                 if (data.success) {
                     showResult('success', 'Analysis Complete', `
                         <div class="result-item">
+                            <span class="result-label">MD5: </span>
+                            <span class="result-value">${data.md5}</span>
+                        </div>
+                        <div class="result-item">
                             <span class="result-label">SHA-1: </span>
                             <span class="result-value">${data.sha1}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">SHA-256: </span>
+                            <span class="result-value">${data.sha256}</span>
                         </div>
                         <div class="result-item">
                             <span class="result-label">Classification: </span>
