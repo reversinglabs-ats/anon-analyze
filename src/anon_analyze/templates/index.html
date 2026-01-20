@@ -7,6 +7,47 @@
     <title>Upload File for Analysis</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .tab:hover {
+            color: #374151;
+        }
+        .tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        .form-hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+        .form-input.invalid {
+            border-color: #dc2626;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,39 +60,57 @@
 
     <main class="main">
         <div class="card">
-            <h1 class="card-title">Upload a File for Analysis</h1>
+            <h1 class="card-title">File Classification Lookup</h1>
+
+            <div class="tabs">
+                <button type="button" class="tab active" data-tab="upload">Upload File</button>
+                <button type="button" class="tab" data-tab="lookup">Lookup Hash</button>
+            </div>
 
             <form id="uploadForm" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" id="email" name="email" class="form-input"
-                        placeholder="your@email.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">File</label>
-                    <div id="dropZone" class="drop-zone">
-                        <svg class="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                        </svg>
-                        <p class="drop-zone-text"><strong>Click to upload</strong> or drag and drop</p>
-                        <p class="drop-zone-hint">Any file type supported</p>
-                        <input type="file" id="fileInput" name="file" class="file-input" required>
+                <div id="uploadPanel" class="tab-panel active">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-input"
+                            placeholder="your@email.com" required>
                     </div>
-                    <div id="selectedFile" class="selected-file">
-                        <svg class="selected-file-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                        </svg>
-                        <span id="fileName" class="selected-file-name"></span>
-                        <button type="button" id="removeFile" class="selected-file-remove" aria-label="Remove file">
-                            <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+
+                    <div class="form-group">
+                        <label class="form-label">File</label>
+                        <div id="dropZone" class="drop-zone">
+                            <svg class="drop-zone-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                             </svg>
-                        </button>
+                            <p class="drop-zone-text"><strong>Click to upload</strong> or drag and drop</p>
+                            <p class="drop-zone-hint">Any file type supported</p>
+                            <input type="file" id="fileInput" name="file" class="file-input" required>
+                        </div>
+                        <div id="selectedFile" class="selected-file">
+                            <svg class="selected-file-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                            <span id="fileName" class="selected-file-name"></span>
+                            <button type="button" id="removeFile" class="selected-file-remove" aria-label="Remove file">
+                                <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
+
+                    <button type="submit" id="submitBtn" class="btn-submit">Submit for Analysis</button>
                 </div>
 
-                <button type="submit" id="submitBtn" class="btn-submit">Submit for Analysis</button>
+                <div id="lookupPanel" class="tab-panel">
+                    <div class="form-group">
+                        <label for="hashInput" class="form-label">File Hash</label>
+                        <input type="text" id="hashInput" class="form-input"
+                            placeholder="Enter MD5, SHA-1, SHA-256, or SHA-512 hash">
+                        <p class="form-hint">Supported formats: MD5 (32 chars), SHA-1 (40 chars), SHA-256 (64 chars), SHA-512 (128 chars)</p>
+                    </div>
+
+                    <button type="button" id="lookupBtn" class="btn-submit">Lookup Classification</button>
+                </div>
 
                 <div id="progressContainer" class="progress-container">
                     <div class="progress-status">
@@ -95,6 +154,118 @@
         const resultIcon = document.getElementById('resultIcon');
         const resultTitle = document.getElementById('resultTitle');
         const resultDetails = document.getElementById('resultDetails');
+        const hashInput = document.getElementById('hashInput');
+        const lookupBtn = document.getElementById('lookupBtn');
+        const tabs = document.querySelectorAll('.tab');
+        const uploadPanel = document.getElementById('uploadPanel');
+        const lookupPanel = document.getElementById('lookupPanel');
+
+        // Hash validation patterns
+        const HASH_PATTERNS = {
+            md5: /^[a-fA-F0-9]{32}$/,
+            sha1: /^[a-fA-F0-9]{40}$/,
+            sha256: /^[a-fA-F0-9]{64}$/,
+            sha512: /^[a-fA-F0-9]{128}$/
+        };
+
+        function validateHash(hash) {
+            if (!hash) return false;
+            hash = hash.trim();
+            return Object.values(HASH_PATTERNS).some(pattern => pattern.test(hash));
+        }
+
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const tabName = tab.dataset.tab;
+                if (tabName === 'upload') {
+                    uploadPanel.classList.add('active');
+                    lookupPanel.classList.remove('active');
+                } else {
+                    uploadPanel.classList.remove('active');
+                    lookupPanel.classList.add('active');
+                }
+
+                // Clear results when switching tabs
+                result.classList.remove('visible', 'success', 'error');
+                hashInput.classList.remove('invalid');
+            });
+        });
+
+        // Hash input validation feedback
+        hashInput.addEventListener('input', () => {
+            const value = hashInput.value.trim();
+            if (value && !validateHash(value)) {
+                hashInput.classList.add('invalid');
+            } else {
+                hashInput.classList.remove('invalid');
+            }
+        });
+
+        // Hash lookup handler
+        lookupBtn.addEventListener('click', async () => {
+            const hashValue = hashInput.value.trim();
+
+            if (!hashValue) {
+                hashInput.classList.add('invalid');
+                showResult('error', 'Invalid Input', '<p>Please enter a hash value.</p>');
+                return;
+            }
+
+            if (!validateHash(hashValue)) {
+                hashInput.classList.add('invalid');
+                showResult('error', 'Invalid Hash', '<p>Please enter a valid MD5, SHA-1, SHA-256, or SHA-512 hash.</p>');
+                return;
+            }
+
+            hashInput.classList.remove('invalid');
+
+            // Show progress
+            result.classList.remove('visible', 'success', 'error');
+            progressContainer.classList.add('visible');
+            progressFill.classList.add('indeterminate');
+            progressText.textContent = 'Looking up hash...';
+            lookupBtn.disabled = true;
+
+            try {
+                const res = await fetch('/lookup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hash_value: hashValue })
+                });
+
+                const data = await res.json();
+
+                progressContainer.classList.remove('visible');
+                progressFill.classList.remove('indeterminate');
+
+                if (data.success) {
+                    let details = '';
+                    if (data.md5) {
+                        details += `<div class="result-item"><span class="result-label">MD5: </span><span class="result-value">${data.md5}</span></div>`;
+                    }
+                    if (data.sha1) {
+                        details += `<div class="result-item"><span class="result-label">SHA-1: </span><span class="result-value">${data.sha1}</span></div>`;
+                    }
+                    if (data.sha256) {
+                        details += `<div class="result-item"><span class="result-label">SHA-256: </span><span class="result-value">${data.sha256}</span></div>`;
+                    }
+                    details += `<div class="result-item"><span class="result-label">Classification: </span><span class="result-value">${data.classification}</span></div>`;
+                    showResult('success', 'Lookup Complete', details);
+                } else {
+                    showResult('error', 'Lookup Failed', `<p>${data.message}</p>`);
+                }
+            } catch (err) {
+                progressContainer.classList.remove('visible');
+                progressFill.classList.remove('indeterminate');
+                showResult('error', 'Lookup Failed', `<p>${err.message || err}</p>`);
+            } finally {
+                lookupBtn.disabled = false;
+            }
+        });
 
         // Drag and drop handlers
         dropZone.addEventListener('click', () => fileInput.click());

@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import time
 import requests
 from flask import Flask, request, jsonify, render_template
@@ -20,6 +21,25 @@ SUBMIT_URL = f"{API_BASE}/api/submit/file/"
 STATUS_URL = f"{API_BASE}/api/samples/status/"
 CLASSIFICATION_URL = f"{API_BASE}/api/samples/v3/"
 REQUESTS_TIMEOUT = 60
+
+# Hash validation patterns
+HASH_PATTERNS = {
+    "md5": re.compile(r"^[a-fA-F0-9]{32}$"),
+    "sha1": re.compile(r"^[a-fA-F0-9]{40}$"),
+    "sha256": re.compile(r"^[a-fA-F0-9]{64}$"),
+    "sha512": re.compile(r"^[a-fA-F0-9]{128}$"),
+}
+
+
+def validate_hash(hash_value):
+    """Validate a hash string and return its type, or None if invalid."""
+    if not hash_value or not isinstance(hash_value, str):
+        return None
+    hash_value = hash_value.strip()
+    for hash_type, pattern in HASH_PATTERNS.items():
+        if pattern.match(hash_value):
+            return hash_type
+    return None
 
 
 @app.route("/")
@@ -104,4 +124,64 @@ def upload():
         sha1=sha1_hash,
         sha256=sha256,
         message="File analyzed successfully",
+    )
+
+
+@app.route("/lookup", methods=["POST"])
+def lookup():
+    data = request.get_json() or {}
+    hash_value = data.get("hash_value", "").strip()
+
+    if not hash_value:
+        return jsonify(success=False, message="Hash value is required"), 400
+
+    hash_type = validate_hash(hash_value)
+    if not hash_type:
+        return (
+            jsonify(
+                success=False,
+                message="Invalid hash format. Provide MD5, SHA-1, SHA-256, or SHA-512.",
+            ),
+            400,
+        )
+
+    if not API_BASE or not API_TOKEN:
+        return jsonify(success=False, message="API_BASE or API_TOKEN not set"), 500
+
+    headers = {"Authorization": f"Token {API_TOKEN}"}
+
+    try:
+        classification_resp = requests.get(
+            f"{CLASSIFICATION_URL}{hash_value}/classification/",
+            headers=headers,
+            timeout=REQUESTS_TIMEOUT,
+        )
+    except requests.RequestException as e:
+        return jsonify(success=False, message=f"API request failed: {e}"), 500
+
+    if classification_resp.status_code == 404:
+        return jsonify(success=False, message="Hash not found in database"), 404
+
+    if classification_resp.status_code != 200:
+        return (
+            jsonify(
+                success=False,
+                message=f"API error: {classification_resp.status_code}",
+            ),
+            classification_resp.status_code,
+        )
+
+    classification_data = classification_resp.json()
+    classification = classification_data.get("classification", "Unknown")
+    md5 = classification_data.get("md5")
+    sha1 = classification_data.get("sha1")
+    sha256 = classification_data.get("sha256")
+
+    return jsonify(
+        success=True,
+        classification=classification,
+        md5=md5,
+        sha1=sha1,
+        sha256=sha256,
+        message="Hash lookup successful",
     )
