@@ -87,7 +87,9 @@ def upload():
         timeout=REQUESTS_TIMEOUT,
     )
     if classification_resp.status_code != 200:
-        return jsonify(success=False, message="Processing complete, but failed to get classification"), 500
+        return jsonify(
+            success=False, message="Processing complete, but failed to get classification"
+        ), 500
 
     classification_data = classification_resp.json()
     classification = classification_data.get("classification", "Could not find classification")
