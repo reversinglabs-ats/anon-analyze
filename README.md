@@ -24,6 +24,17 @@ pre-commit install
 pytest
 ```
 
+### Environment Setup
+
+Copy the example environment file and configure your credentials:
+
+```bash
+cp .env.example .env
+# Edit .env with your Spectra Analyze instance URL and API token
+```
+
+See [Configuration](#configuration) for details on required variables.
+
 ### Build and Run Container
 
 ```bash
