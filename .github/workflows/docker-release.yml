@@ -55,6 +55,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.33.1
         with:
           scan-type: "fs"
+          version: "v0.68.2"
           ignore-unfixed: true
           format: "table"
           exit-code: "1"
@@ -63,6 +64,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          version: "v0.68.2"
           format: "table"
           ignore-unfixed: true
           exit-code: "1"
