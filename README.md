@@ -19,7 +19,7 @@ In no event shall the developer be liable for any direct, indirect, incidental, 
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt -r dev-requirements.txt
+pip install -e . -r requirements.txt -r dev-requirements.txt
 pre-commit install
 pytest
 ```
