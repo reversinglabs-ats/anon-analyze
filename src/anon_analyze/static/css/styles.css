@@ -17,7 +17,10 @@
   --color-gray-400: #a3a3a3;
   --color-gray-600: #525252;
   --color-success: #16a34a;
-  --color-error: #dc2626;
+  --color-suspicious: #ca8a04;
+  --color-malicious: #dc2626;
+  --color-unknown: #6b7280;
+  --color-error: #ea580c;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -317,14 +320,29 @@ body {
   display: block;
 }
 
-.result.success {
+.result.goodware {
   background-color: rgb(22 163 74 / 0.1);
   border: 1px solid rgb(22 163 74 / 0.2);
 }
 
-.result.error {
+.result.suspicious {
+  background-color: rgb(202 138 4 / 0.1);
+  border: 1px solid rgb(202 138 4 / 0.2);
+}
+
+.result.malicious {
   background-color: rgb(220 38 38 / 0.1);
   border: 1px solid rgb(220 38 38 / 0.2);
+}
+
+.result.unknown {
+  background-color: rgb(107 114 128 / 0.1);
+  border: 1px solid rgb(107 114 128 / 0.2);
+}
+
+.result.error {
+  background-color: rgb(234 88 12 / 0.1);
+  border: 1px solid rgb(234 88 12 / 0.2);
 }
 
 .result-header {
@@ -339,8 +357,20 @@ body {
   height: 20px;
 }
 
-.result.success .result-icon {
+.result.goodware .result-icon {
   color: var(--color-success);
+}
+
+.result.suspicious .result-icon {
+  color: var(--color-suspicious);
+}
+
+.result.malicious .result-icon {
+  color: var(--color-malicious);
+}
+
+.result.unknown .result-icon {
+  color: var(--color-unknown);
 }
 
 .result.error .result-icon {
@@ -352,8 +382,20 @@ body {
   font-size: 1rem;
 }
 
-.result.success .result-title {
+.result.goodware .result-title {
   color: var(--color-success);
+}
+
+.result.suspicious .result-title {
+  color: var(--color-suspicious);
+}
+
+.result.malicious .result-title {
+  color: var(--color-malicious);
+}
+
+.result.unknown .result-title {
+  color: var(--color-unknown);
 }
 
 .result.error .result-title {
