@@ -9,7 +9,7 @@ Commands:
 
 import argparse
 import re
-import subprocess
+import subprocess  # nosec B404 - subprocess used safely with shell=False
 import sys
 from pathlib import Path
 
@@ -21,7 +21,7 @@ REPO_URL = "https://github.com/reversinglabs-ats/anon-analyze"
 
 def run(cmd: list[str], capture: bool = False, check: bool = True) -> subprocess.CompletedProcess:
     """Run a shell command."""
-    return subprocess.run(cmd, capture_output=capture, text=True, check=check)
+    return subprocess.run(cmd, capture_output=capture, text=True, check=check)  # nosec B603
 
 
 def get_current_version() -> str:
