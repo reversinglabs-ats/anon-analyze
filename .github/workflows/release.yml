@@ -1,0 +1,36 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Extract release notes from CHANGELOG.md
+        id: notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Extract section for this version (from header to next header)
+          NOTES=$(sed -n "/^## \[${VERSION}\]/,/^## \[/p" CHANGELOG.md | sed '1d;$d')
+          # Handle case where this is the last version (no next header)
+          if [ -z "$NOTES" ]; then
+            NOTES=$(sed -n "/^## \[${VERSION}\]/,\$p" CHANGELOG.md | sed '1d')
+          fi
+          # Write to file to preserve formatting
+          echo "$NOTES" > release_notes.txt
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file release_notes.txt

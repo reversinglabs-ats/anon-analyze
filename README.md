@@ -126,6 +126,7 @@ docker run --rm --env-file ./.env -e ENABLE_TLS=true -p 8000:8000 anon-analyze:l
 
 - Every push/PR: Lint, test, pip-audit, Bandit (SAST).
 - On push to `main` and tags `v*`: Build image, scan with Trivy, and push to GHCR.
+- On version tag push (`v*.*.*`): Auto-create GitHub Release with notes from CHANGELOG.md.
 - Nightly: re-scan latest image with Trivy.
 
 See `.github/workflows/` for details.
