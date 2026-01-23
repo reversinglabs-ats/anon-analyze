@@ -13,29 +13,88 @@ Use of this application is at your own risk. By using this application, you ackn
 
 In no event shall the developer be liable for any direct, indirect, incidental, special, exemplary, or consequential damages arising out of or in any way connected with the use or misuse of this application.
 
-## Quickstart
+## Usage
 
-### Local Development
+### Configuration
+
+Create a `.env` file with your Spectra Analyze credentials:
+
+```
+ANALYZE_API_BASE=https://your.appliance.reversinglabs.com
+ANALYZE_API_TOKEN=your40characterhexadecimalapitokenhere
+```
+
+#### Required Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ANALYZE_API_BASE` | Base URL of your Spectra Analyze instance (no trailing slash) |
+| `ANALYZE_API_TOKEN` | API authentication token for Spectra Analyze (40 hex characters) |
+
+#### Optional Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ANALYZE_SSL_VERIFY` | `true` | Set to `false` to disable SSL verification for outbound API requests (use only in trusted networks) |
+| `ENABLE_TLS` | `false` | Set to `true` to enable HTTPS mode for incoming connections |
+| `TLS_CERT_PATH` | (none) | Path to TLS certificate file (from container's perspective) |
+| `TLS_KEY_PATH` | (none) | Path to TLS private key file (from container's perspective) |
+
+### Quick Start
+
+Pull and run the pre-built container image:
 
 ```bash
+docker pull ghcr.io/reversinglabs-ats/anon-analyze:latest
+
+docker run --rm --env-file ./.env -p 8000:8000 ghcr.io/reversinglabs-ats/anon-analyze:latest
+```
+
+### TLS/HTTPS Mode
+
+The application supports optional HTTPS mode for encrypted connections. Both HTTP and HTTPS modes use port 8000 inside the container.
+
+#### Auto-Generated Self-Signed Certificate
+
+When `ENABLE_TLS=true` is set without providing certificate paths, the application automatically generates a self-signed certificate:
+
+```bash
+docker run --rm --env-file ./.env -e ENABLE_TLS=true -p 8000:8000 ghcr.io/reversinglabs-ats/anon-analyze:latest
+curl -k https://localhost:8000/
+```
+
+The `-k` flag tells curl to accept the self-signed certificate.
+
+#### Using Custom Certificates
+
+To use your own certificates, mount them into the container and set the path environment variables:
+
+```bash
+docker run --rm --env-file ./.env \
+  -e ENABLE_TLS=true \
+  -e TLS_CERT_PATH=/certs/cert.pem \
+  -e TLS_KEY_PATH=/certs/key.pem \
+  -v /path/to/your/certs:/certs:ro \
+  -p 8000:8000 ghcr.io/reversinglabs-ats/anon-analyze:latest
+```
+
+Note that `TLS_CERT_PATH` and `TLS_KEY_PATH` are paths **from the container's perspective**, not the host. Both must be provided together, or neither (for auto-generated certificates).
+
+## Development
+
+### Local Development Setup
+
+```bash
+cp .env.example .env
+# Edit .env with your Spectra Analyze instance URL and API token
+
 python -m venv .venv && source .venv/bin/activate
 pip install -e . -r requirements.txt -r dev-requirements.txt
 pre-commit install
 pytest
 ```
 
-### Environment Setup
-
-Copy the example environment file and configure your credentials:
-
-```bash
-cp .env.example .env
-# Edit .env with your Spectra Analyze instance URL and API token
-```
-
-See [Configuration](#configuration) for details on required variables.
-
-### Build and Run Container
+### Build and Run Container Locally
 
 ```bash
 # Build the image
@@ -47,53 +106,6 @@ docker run --rm --env-file ./.env -p 8000:8000 anon-analyze:local
 # Run in HTTPS mode with auto-generated self-signed certificate
 docker run --rm --env-file ./.env -e ENABLE_TLS=true -p 8000:8000 anon-analyze:local
 ```
-
-## Configuration
-
-### Required Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `ANALYZE_API_BASE` | Base URL of your Spectra Analyze instance |
-| `ANALYZE_API_TOKEN` | API authentication token for Spectra Analyze |
-
-### Optional Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `ENABLE_TLS` | `false` | Set to `true` to enable HTTPS mode |
-| `TLS_CERT_PATH` | (none) | Path to TLS certificate file (from container's perspective) |
-| `TLS_KEY_PATH` | (none) | Path to TLS private key file (from container's perspective) |
-
-## TLS/HTTPS Mode
-
-The application supports optional HTTPS mode for encrypted connections. Both HTTP and HTTPS modes use port 8000 inside the container.
-
-### Auto-Generated Self-Signed Certificate
-
-When `ENABLE_TLS=true` is set without providing certificate paths, the application automatically generates a self-signed certificate:
-
-```bash
-docker run --rm --env-file ./.env -e ENABLE_TLS=true -p 8000:8000 anon-analyze:local
-curl -k https://localhost:8000/
-```
-
-The `-k` flag tells curl to accept the self-signed certificate.
-
-### Using Custom Certificates
-
-To use your own certificates, mount them into the container and set the path environment variables:
-
-```bash
-docker run --rm --env-file ./.env \
-  -e ENABLE_TLS=true \
-  -e TLS_CERT_PATH=/certs/cert.pem \
-  -e TLS_KEY_PATH=/certs/key.pem \
-  -v /path/to/your/certs:/certs:ro \
-  -p 8000:8000 anon-analyze:local
-```
-
-Note that `TLS_CERT_PATH` and `TLS_KEY_PATH` are paths **from the container's perspective**, not the host. Both must be provided together, or neither (for auto-generated certificates).
 
 ## CI/CD Overview
 

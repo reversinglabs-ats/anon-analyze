@@ -1,5 +1,15 @@
 from unittest.mock import patch, Mock
 from anon_analyze import app
+from anon_analyze.config import AppConfig
+
+
+def _mock_config():
+    """Create a mock config for testing."""
+    return AppConfig(
+        api_token="a" * 40,
+        api_base="https://test.example.com",
+        ssl_verify=True,
+    )
 
 
 def test_index_route():
@@ -40,9 +50,8 @@ def test_lookup_invalid_hash():
 
 
 @patch("anon_analyze.app.requests.get")
-@patch("anon_analyze.app.API_BASE", "https://test.example.com")
-@patch("anon_analyze.app.API_TOKEN", "test-token")
-def test_lookup_valid_md5(mock_get):
+@patch("anon_analyze.app._get_config", return_value=_mock_config())
+def test_lookup_valid_md5(mock_config, mock_get):
     """Valid MD5 hash calls API correctly."""
     mock_response = Mock()
     mock_response.status_code = 200
@@ -65,9 +74,8 @@ def test_lookup_valid_md5(mock_get):
 
 
 @patch("anon_analyze.app.requests.get")
-@patch("anon_analyze.app.API_BASE", "https://test.example.com")
-@patch("anon_analyze.app.API_TOKEN", "test-token")
-def test_lookup_hash_not_found(mock_get):
+@patch("anon_analyze.app._get_config", return_value=_mock_config())
+def test_lookup_hash_not_found(mock_config, mock_get):
     """API 404 returns proper error message."""
     mock_response = Mock()
     mock_response.status_code = 404

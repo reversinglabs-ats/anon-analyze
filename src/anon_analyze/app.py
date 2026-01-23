@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import sys
 import time
 import requests
 from flask import Flask, request, jsonify, render_template
@@ -11,17 +12,56 @@ if os.getenv("FLASK_ENV") == "development":
 
     load_dotenv()
 
+from anon_analyze.config import load_config, ConfigurationError
+
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "uploads"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-API_TOKEN = os.getenv("ANALYZE_API_TOKEN")
-API_BASE = os.getenv("ANALYZE_API_BASE")  # e.g. https://your.appliance.com
-SUBMIT_URL = f"{API_BASE}/api/submit/file/"
-STATUS_URL = f"{API_BASE}/api/samples/status/"
-CLASSIFICATION_URL = f"{API_BASE}/api/samples/v3/"
+# Lazy-loaded configuration (loaded on first request or explicit init)
+_config = None
 REQUESTS_TIMEOUT = 60
-ANALYZE_SSL_VERIFY = os.getenv("ANALYZE_SSL_VERIFY", "true").lower() == "true"
+
+
+def _get_config():
+    """Get validated configuration, loading it on first access."""
+    global _config
+    if _config is None:
+        try:
+            _config = load_config()
+        except ConfigurationError as e:
+            sys.exit(f"Configuration error: {e}")
+    return _config
+
+
+def init_config():
+    """Initialize configuration early (call at server startup)."""
+    _get_config()
+
+
+# Module-level accessors for backwards compatibility
+def _api_token():
+    return _get_config().api_token
+
+
+def _api_base():
+    return _get_config().api_base
+
+
+def _submit_url():
+    return _get_config().submit_url
+
+
+def _status_url():
+    return _get_config().status_url
+
+
+def _classification_url():
+    return _get_config().classification_url
+
+
+def _ssl_verify():
+    return _get_config().ssl_verify
 
 # Hash validation patterns
 HASH_PATTERNS = {
@@ -53,9 +93,6 @@ def upload():
     if "file" not in request.files or "email" not in request.form:
         return jsonify(success=False, message="Missing file or email"), 400
 
-    if not API_BASE or not API_TOKEN:
-        return jsonify(success=False, message="API_BASE or API_TOKEN not set")
-
     infile = request.files["file"]
     email = request.form["email"]
     if infile.filename == "" or not email:
@@ -67,16 +104,16 @@ def upload():
 
     files = {"file": (filename, open(temp_path, "rb"))}
     data = {"comment": email, "analysis": json.dumps({"cloud": True})}
-    headers = {"Authorization": f"Token {API_TOKEN}"}
+    headers = {"Authorization": f"Token {_api_token()}"}
 
     try:
         resp = requests.post(
-            SUBMIT_URL,
+            _submit_url(),
             files=files,
             data=data,
             headers=headers,
             timeout=60,
-            verify=ANALYZE_SSL_VERIFY,
+            verify=_ssl_verify(),
         )
     finally:
         files["file"][1].close()
@@ -95,11 +132,11 @@ def upload():
     elapsed = 0
     while elapsed < timeout:
         status_resp = requests.post(
-            STATUS_URL,
+            _status_url(),
             json={"hash_values": [sha1]},
             headers=headers,
             timeout=REQUESTS_TIMEOUT,
-            verify=ANALYZE_SSL_VERIFY,
+            verify=_ssl_verify(),
         )
         if status_resp.status_code == 200:
             status_json = status_resp.json()
@@ -114,10 +151,10 @@ def upload():
 
     # Fetch classification (using v3 endpoint)
     classification_resp = requests.get(
-        f"{CLASSIFICATION_URL}{sha1}/classification/",
+        f"{_classification_url()}{sha1}/classification/",
         headers=headers,
         timeout=REQUESTS_TIMEOUT,
-        verify=ANALYZE_SSL_VERIFY,
+        verify=_ssl_verify(),
     )
     if classification_resp.status_code != 200:
         return jsonify(
@@ -158,17 +195,14 @@ def lookup():
             400,
         )
 
-    if not API_BASE or not API_TOKEN:
-        return jsonify(success=False, message="API_BASE or API_TOKEN not set"), 500
-
-    headers = {"Authorization": f"Token {API_TOKEN}"}
+    headers = {"Authorization": f"Token {_api_token()}"}
 
     try:
         classification_resp = requests.get(
-            f"{CLASSIFICATION_URL}{hash_value}/classification/",
+            f"{_classification_url()}{hash_value}/classification/",
             headers=headers,
             timeout=REQUESTS_TIMEOUT,
-            verify=ANALYZE_SSL_VERIFY,
+            verify=_ssl_verify(),
         )
     except requests.RequestException as e:
         return jsonify(success=False, message=f"API request failed: {e}"), 500
