@@ -21,6 +21,7 @@ SUBMIT_URL = f"{API_BASE}/api/submit/file/"
 STATUS_URL = f"{API_BASE}/api/samples/status/"
 CLASSIFICATION_URL = f"{API_BASE}/api/samples/v3/"
 REQUESTS_TIMEOUT = 60
+ANALYZE_SSL_VERIFY = os.getenv("ANALYZE_SSL_VERIFY", "true").lower() == "true"
 
 # Hash validation patterns
 HASH_PATTERNS = {
@@ -69,7 +70,7 @@ def upload():
     headers = {"Authorization": f"Token {API_TOKEN}"}
 
     try:
-        resp = requests.post(SUBMIT_URL, files=files, data=data, headers=headers, timeout=60)
+        resp = requests.post(SUBMIT_URL, files=files, data=data, headers=headers, timeout=60, verify=ANALYZE_SSL_VERIFY)
     finally:
         files["file"][1].close()
         os.remove(temp_path)
@@ -87,7 +88,7 @@ def upload():
     elapsed = 0
     while elapsed < timeout:
         status_resp = requests.post(
-            STATUS_URL, json={"hash_values": [sha1]}, headers=headers, timeout=REQUESTS_TIMEOUT
+            STATUS_URL, json={"hash_values": [sha1]}, headers=headers, timeout=REQUESTS_TIMEOUT, verify=ANALYZE_SSL_VERIFY
         )
         if status_resp.status_code == 200:
             status_json = status_resp.json()
@@ -105,6 +106,7 @@ def upload():
         f"{CLASSIFICATION_URL}{sha1}/classification/",
         headers=headers,
         timeout=REQUESTS_TIMEOUT,
+        verify=ANALYZE_SSL_VERIFY,
     )
     if classification_resp.status_code != 200:
         return jsonify(
@@ -155,6 +157,7 @@ def lookup():
             f"{CLASSIFICATION_URL}{hash_value}/classification/",
             headers=headers,
             timeout=REQUESTS_TIMEOUT,
+            verify=ANALYZE_SSL_VERIFY,
         )
     except requests.RequestException as e:
         return jsonify(success=False, message=f"API request failed: {e}"), 500
