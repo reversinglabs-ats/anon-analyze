@@ -41,7 +41,21 @@ def extract_release_notes(version: str) -> str:
     match = re.search(pattern, content, re.DOTALL)
     if not match:
         sys.exit(f"Could not find version {version} in CHANGELOG.md")
-    return match.group(1).strip()
+    notes = match.group(1).strip()
+
+    # Append Docker image section
+    docker_section = f"""
+---
+
+## Docker Image
+
+```bash
+docker pull ghcr.io/reversinglabs-ats/anon-analyze:{version}
+```
+
+[View on GitHub Container Registry]({REPO_URL}/pkgs/container/anon-analyze)"""
+
+    return notes + docker_section
 
 
 def cmd_changelog(args: argparse.Namespace) -> None:

@@ -24,8 +24,20 @@ jobs:
           if [ -z "$NOTES" ]; then
             NOTES=$(sed -n "/^## \[${VERSION}\]/,\$p" CHANGELOG.md | sed '1d')
           fi
-          # Write to file to preserve formatting
-          echo "$NOTES" > release_notes.txt
+          # Write to file with Docker image section appended
+          cat > release_notes.txt << EOF
+${NOTES}
+
+---
+
+## Docker Image
+
+\`\`\`bash
+docker pull ghcr.io/reversinglabs-ats/anon-analyze:${VERSION}
+\`\`\`
+
+[View on GitHub Container Registry](https://github.com/reversinglabs-ats/anon-analyze/pkgs/container/anon-analyze)
+EOF
 
       - name: Create GitHub Release
         env:
