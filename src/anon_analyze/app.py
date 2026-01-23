@@ -70,7 +70,14 @@ def upload():
     headers = {"Authorization": f"Token {API_TOKEN}"}
 
     try:
-        resp = requests.post(SUBMIT_URL, files=files, data=data, headers=headers, timeout=60, verify=ANALYZE_SSL_VERIFY)
+        resp = requests.post(
+            SUBMIT_URL,
+            files=files,
+            data=data,
+            headers=headers,
+            timeout=60,
+            verify=ANALYZE_SSL_VERIFY,
+        )
     finally:
         files["file"][1].close()
         os.remove(temp_path)
@@ -88,7 +95,11 @@ def upload():
     elapsed = 0
     while elapsed < timeout:
         status_resp = requests.post(
-            STATUS_URL, json={"hash_values": [sha1]}, headers=headers, timeout=REQUESTS_TIMEOUT, verify=ANALYZE_SSL_VERIFY
+            STATUS_URL,
+            json={"hash_values": [sha1]},
+            headers=headers,
+            timeout=REQUESTS_TIMEOUT,
+            verify=ANALYZE_SSL_VERIFY,
         )
         if status_resp.status_code == 200:
             status_json = status_resp.json()
