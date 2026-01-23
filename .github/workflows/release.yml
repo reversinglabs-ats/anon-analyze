@@ -25,19 +25,19 @@ jobs:
             NOTES=$(sed -n "/^## \[${VERSION}\]/,\$p" CHANGELOG.md | sed '1d')
           fi
           # Write to file with Docker image section appended
-          cat > release_notes.txt << EOF
-${NOTES}
-
----
-
-## Docker Image
-
-\`\`\`bash
-docker pull ghcr.io/reversinglabs-ats/anon-analyze:${VERSION}
-\`\`\`
-
-[View on GitHub Container Registry](https://github.com/reversinglabs-ats/anon-analyze/pkgs/container/anon-analyze)
-EOF
+          {
+            echo "$NOTES"
+            echo ""
+            echo "---"
+            echo ""
+            echo "## Docker Image"
+            echo ""
+            echo '```bash'
+            echo "docker pull ghcr.io/reversinglabs-ats/anon-analyze:${VERSION}"
+            echo '```'
+            echo ""
+            echo "[View on GitHub Container Registry](https://github.com/reversinglabs-ats/anon-analyze/pkgs/container/anon-analyze)"
+          } > release_notes.txt
 
       - name: Create GitHub Release
         env:
