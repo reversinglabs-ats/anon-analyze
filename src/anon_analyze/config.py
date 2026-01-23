@@ -69,9 +69,7 @@ def validate_api_base(value: str | None) -> str:
     if (value.startswith('"') and value.endswith('"')) or (
         value.startswith("'") and value.endswith("'")
     ):
-        raise ConfigurationError(
-            "ANALYZE_API_BASE contains surrounding quotes - remove them"
-        )
+        raise ConfigurationError("ANALYZE_API_BASE contains surrounding quotes - remove them")
 
     # Check for scheme
     if not value.startswith(("http://", "https://")):
@@ -81,9 +79,7 @@ def validate_api_base(value: str | None) -> str:
     try:
         parsed = urlparse(value)
         if not parsed.netloc:
-            raise ConfigurationError(
-                "ANALYZE_API_BASE must have a valid hostname"
-            )
+            raise ConfigurationError("ANALYZE_API_BASE must have a valid hostname")
     except Exception:
         raise ConfigurationError("ANALYZE_API_BASE is not a valid URL")
 
@@ -113,9 +109,7 @@ def validate_ssl_verify(value: str | None) -> bool:
     if value in ("false", "0", "no"):
         return False
 
-    raise ConfigurationError(
-        f"ANALYZE_SSL_VERIFY must be 'true' or 'false' (got '{value}')"
-    )
+    raise ConfigurationError(f"ANALYZE_SSL_VERIFY must be 'true' or 'false' (got '{value}')")
 
 
 @dataclass

@@ -1,20 +1,29 @@
 PYTHON := python3
 
-.PHONY: install lint test run docker-build docker-run docker-run-tls
+.PHONY: install setup lint lint-fix test run docker-build docker-run docker-run-tls
 
 install:
-	pip install -r requirements.txt
-	pip install -r dev-requirements.txt
+	uv venv --quiet
+	uv pip install -r requirements.txt
+	uv pip install -r dev-requirements.txt
+
+setup: install
+	uv run pre-commit install
+	@echo "Pre-commit hooks installed!"
 
 lint:
-	ruff check .
-	ruff format --check .
+	uv run ruff check .
+	uv run ruff format --check .
+
+lint-fix:
+	uv run ruff check --fix .
+	uv run ruff format .
 
 test:
-	pytest
+	uv run pytest
 
 run:
-	FLASK_ENV=development FLASK_APP=anon_analyze.app flask run --host=0.0.0.0 --port=8000
+	FLASK_ENV=development FLASK_APP=anon_analyze.app uv run flask run --host=0.0.0.0 --port=8000
 
 docker-build:
 	docker build -t anon-analyze:local .

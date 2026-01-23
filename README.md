@@ -88,11 +88,26 @@ Note that `TLS_CERT_PATH` and `TLS_KEY_PATH` are paths **from the container's pe
 cp .env.example .env
 # Edit .env with your Spectra Analyze instance URL and API token
 
-python -m venv .venv && source .venv/bin/activate
-pip install -e . -r requirements.txt -r dev-requirements.txt
-pre-commit install
-pytest
+make setup  # Creates venv, installs dependencies, and configures pre-commit hooks
+make test
 ```
+
+Note: This project uses [uv](https://docs.astral.sh/uv/) for fast, reliable dependency management. Install it with `pip install uv` or see [uv installation docs](https://docs.astral.sh/uv/getting-started/installation/).
+
+### Pre-Commit Hooks
+
+This project uses pre-commit to catch linting issues before they reach CI. Hooks run automatically on `git commit` and include:
+- ruff linting (with auto-fix)
+- ruff formatting
+- Trailing whitespace and EOF fixes
+- Secret detection
+
+Most issues are auto-fixed. If a hook fails, re-stage the fixed files and commit again.
+
+Manual commands:
+- `make lint` - Check for issues
+- `make lint-fix` - Auto-fix issues
+- `pre-commit run --all-files` - Run all hooks on entire repo
 
 ### Build and Run Container Locally
 

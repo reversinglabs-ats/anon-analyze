@@ -63,6 +63,7 @@ def _classification_url():
 def _ssl_verify():
     return _get_config().ssl_verify
 
+
 # Hash validation patterns
 HASH_PATTERNS = {
     "md5": re.compile(r"^[a-fA-F0-9]{32}$"),
