@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Version bump to rebuild the Docker image and remediate three medium-severity vulnerabilities
+
 ## [1.4.3] - 2026-01-23
 
 ### Changed

@@ -9,3 +9,6 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 uploads/
+CLAUDE.md
+analyze-api.yaml
+how-to-release.md

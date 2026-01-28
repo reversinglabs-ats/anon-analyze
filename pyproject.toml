@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "anon-analyze"
-version = "1.4.3"
+version = "1.4.4"
 requires-python = ">=3.11"
 description = "Provides a front-end for anonymous user usage of Spectra Analyze"
 readme = "README.md"
