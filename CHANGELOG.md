@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.4] - 2026-01-28
+
 ### Changed
 - Version bump to rebuild the Docker image and remediate three medium-severity vulnerabilities
 
@@ -79,7 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - File submission and classification retrieval
 - Flask-based web server with gunicorn for production
 
-[Unreleased]: https://github.com/reversinglabs-ats/anon-analyze/compare/v1.4.3...HEAD
+[Unreleased]: https://github.com/reversinglabs-ats/anon-analyze/compare/v1.4.4...HEAD
+[1.4.4]: https://github.com/reversinglabs-ats/anon-analyze/compare/v1.4.4...v1.4.4
 [1.4.3]: https://github.com/reversinglabs-ats/anon-analyze/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/reversinglabs-ats/anon-analyze/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/reversinglabs-ats/anon-analyze/compare/v1.4.0...v1.4.1
