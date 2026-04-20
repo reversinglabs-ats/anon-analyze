@@ -25,7 +25,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
-          version: "v0.69.1"
+          version: "v0.69.3"
           format: "table"
           ignore-unfixed: true
           exit-code: "1"
