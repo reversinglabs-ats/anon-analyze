@@ -55,3 +55,16 @@ jobs:
         run: |
           pip install bandit==1.9.3
           bandit -q -r .
+
+  notify-kb:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [test, deps-audit, bandit]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify ats-kb-automation
+        run: |
+          curl -sS -X POST \
+            -H "Authorization: token ${{ secrets.GH_ORG_PAT }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/reversinglabs-ats/ats-kb-automation/dispatches \
+            -d '{"event_type":"repo-updated","client_payload":{"repo":"${{ github.event.repository.name }}"}}'
