@@ -22,7 +22,7 @@ jobs:
       - name: Pull latest image
         run: docker pull $REGISTRY/$IMAGE_NAME:main || true
       - name: Trivy scan latest
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
           version: "v0.69.3"
